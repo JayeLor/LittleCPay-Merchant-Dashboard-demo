@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LittleCPay – Merchant Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #020617;
+      color: #e5e7eb;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+
+    h1 {
+      color: #38bdf8;
+      margin-bottom: 5px;
+    }
+
+    p {
+      color: #94a3b8;
+      font-size: 14px;
+    }
+
+    .card {
+      background: #0f172a;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,.4);
+    }
+
+    button {
+      background: #22c55e;
+      color: #022c22;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border-bottom: 1px solid #1e293b;
+      padding: 10px;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      color: #38bdf8;
+    }
+
+    .status {
+      font-weight: bold;
+    }
+
+    .confirmed {
+      color: #22c55e;
+    }
+
+    .waiting {
+      color: #facc15;
+    }
+
+    pre {
+      background: #020617;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 13px;
+      overflow-x: auto;
+    }
+
+    .footer {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 12px;
+      color: #64748b;
+    }
+  </style>
+</head>
+
+<body>
+<div class="container">
+
+  <h1>LittleCPay</h1>
+  <p>Merchant Dashboard (Demo)</p>
+
+  <div class="card">
+    <button onclick="loadDeposit()">Load Latest Deposit</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Merchant</th>
+          <th>Deposit ID</th>
+          <th>Asset</th>
+          <th>Network</th>
+          <th>Amount</th>
+          <th>TxID</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td id="merchant">—</td>
+          <td id="depositId">—</td>
+          <td id="asset">—</td>
+          <td id="network">—</td>
+          <td id="amount">—</td>
+          <td id="txid">—</td>
+          <td id="status" class="status">—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Webhook Event (Simulated)</h3>
+    <p>This payload represents what LittleCPay sends to the merchant backend.</p>
+    <pre id="webhook">Waiting for event...</pre>
+  </div>
+
+  <div class="footer">
+    © LittleCPay — Crypto Payment Infrastructure
+  </div>
+
+</div>
+
+<script>
+function loadDeposit() {
+  const data = localStorage.getItem("littlecpay_deposit");
+
+  if (!data) {
+    alert("No deposits found yet.");
+    return;
+  }
+
+  const d = JSON.parse(data);
+
+  document.getElementById("merchant").innerText = d.merchant;
+  document.getElementById("depositId").innerText = d.deposit_id;
+  document.getElementById("asset").innerText = d.asset;
+  document.getElementById("network").innerText = d.network;
+  document.getElementById("amount").innerText = d.amount + " USDT";
+  document.getElementById("txid").innerText = d.txid || "—";
+
+  const statusEl = document.getElementById("status");
+  statusEl.innerText = d.status;
+  statusEl.className = "status " + (d.status === "confirmed" ? "confirmed" : "waiting");
+
+  document.getElementById("webhook").innerText =
+    JSON.stringify({
+      gateway: "LittleCPay",
+      event: "deposit.confirmed",
+      merchant: d.merchant,
+      deposit_id: d.deposit_id,
+      asset: d.asset,
+      network: d.network,
+      amount: d.amount,
+      txid: d.txid,
+      confirmations: d.confirmations || 0,
+      status: d.status,
+      timestamp: new Date().toISOString()
+    }, null, 2);
+}
+</script>
+
+</body>
+</html>
